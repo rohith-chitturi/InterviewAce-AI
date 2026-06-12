@@ -40,7 +40,7 @@ export default function InterviewSetup() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/api/interview/setup", {
+      const response = await fetch("http://localhost:8080/api/interview/setup", {
         method: "POST",
         body: formData,
       });
