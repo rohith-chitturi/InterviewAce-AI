@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String      @id @default(uuid())
+  clerkId   String      @unique
+  email     String      @unique
+  name      String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  resumes   Resume[]
+  interviews Interview[]
+}
+
+model Resume {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileUrl     String      // URL from Supabase Storage
+  textContent String      @db.Text // Extracted text for AI context
+  createdAt   DateTime    @default(now())
+  interviews  Interview[]
+}
+
+model Interview {
+  id          String       @id @default(uuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  resume      Resume?      @relation(fields: [resumeId], references: [id])
+  role        String       // e.g., "Software Engineer"
+  difficulty  String       // Easy, Medium, Hard
+  type        String       // Technical, HR, Behavioral
+  status      String       @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  duration    Int          // in minutes
+  createdAt   DateTime     @default(now())
+  transcripts Transcript[]
+  feedback    Feedback?
+}
+
+model Transcript {
+  id          String    @id @default(uuid())
+  interviewId String
+  interview   Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  role        String    // "AI" or "USER"
+  text        String    @db.Text
+  createdAt   DateTime  @default(now())
+}
+
+model Feedback {
+  id                     String    @id @default(uuid())
+  interviewId            String    @unique
+  interview              Interview @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  overallScore           Int
+  technicalScore         Int
+  communicationScore     Int
+  confidenceScore        Int
+  problemSolvingScore    Int
+  behavioralScore        Int
+  strengths              String[]
+  weaknesses             String[]
+  knowledgeGaps          String[]
+  improvementSuggestions String[]
+  recommendedTopics      String[]
+  learningPlan           String    @db.Text
+  createdAt              DateTime  @default(now())
+}
