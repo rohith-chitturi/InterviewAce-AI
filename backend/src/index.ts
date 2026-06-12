@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import interviewRoutes from './routes/interview';
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.use(express.json());
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'InterviewAce AI Backend is running!' });
 });
+
+app.use('/api/interview', interviewRoutes);
 
 const PORT = process.env.PORT || 5000;
 
